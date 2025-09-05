@@ -133,3 +133,31 @@ def test_set_non_existent_choice_as_correct():
 def test_create_question_with_empty_title():
     with pytest.raises(Exception, match='Title cannot be empty'):
         question = Question(title='')
+
+@pytest.fixture
+def question_with_multiple_choices():
+    question = Question(title='q1', max_selections=2)
+
+    question.add_choice('a')
+    question.add_choice('b', True)
+    question.add_choice('c')
+    question.add_choice('d', True)
+
+    return question
+
+def test_correct_one_selected_choices(question_with_multiple_choices):
+    question = question_with_multiple_choices
+
+    selected_ids = [question.choices[1].id, question.choices[2].id]
+    correct_selected_ids = question.correct_selected_choices(selected_ids)
+
+    assert len(correct_selected_ids) == 1
+    assert question.choices[1].id in correct_selected_ids
+
+def test_all_wrong_selected_choices(question_with_multiple_choices):
+    question = question_with_multiple_choices
+
+    selected_ids = [question.choices[0].id, question.choices[2].id]
+    correct_selected_ids = question.correct_selected_choices(selected_ids)
+
+    assert len(correct_selected_ids) == 0
